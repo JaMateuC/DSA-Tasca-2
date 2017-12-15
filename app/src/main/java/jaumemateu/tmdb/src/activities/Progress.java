@@ -34,7 +34,7 @@ public class Progress extends AppCompatActivity {
     private List<String> listaImage;
     private List<Pelicula> listaPelis;
 
-    private final static String API_KEY = "API_key";
+    private final static String API_KEY = "apiKey";
     private HashMap<String,String> options;
 
     @Override
@@ -66,7 +66,6 @@ public class Progress extends AppCompatActivity {
 
         options.put("api_key", API_KEY);
         options.put("query", nombrePelicula);
-        options.put("page", "1");
 
         Rest RestApiService = retrofit.create(Rest.class);
 
@@ -76,8 +75,7 @@ public class Progress extends AppCompatActivity {
             @Override
             public void onResponse(Call<ListaPeliculas> call, Response<ListaPeliculas> response) {
                 Log.d("aaa", "Response returned by website is : " + response.code());
-                int total_pages = response.body().getTotalPages();
-                getAllPelis(total_pages);
+                listaPelis.addAll(response.body().getResults());
                 getTituloImage();
                 Intent resultIntent = new Intent(Progress.this,Results.class);
                 resultIntent.putExtra("movieTitulo",(ArrayList<String>) listaTitulos);
@@ -91,33 +89,6 @@ public class Progress extends AppCompatActivity {
                 finish();
             }
         });
-
-    }
-
-    public void getAllPelis(int pages){
-
-        Rest RestApiService = retrofit.create(Rest.class);
-
-        for(int i = 1; i <= pages; i++){
-
-            options.remove("page");
-            options.put("page",Integer.toString(i));
-
-            Call<ListaPeliculas> call = RestApiService.getMovieDetails(options);
-            call.enqueue(new Callback<ListaPeliculas>() {
-                @Override
-                public void onResponse(Call<ListaPeliculas> call, Response<ListaPeliculas> response) {
-                    listaPelis.addAll(response.body().getResults());
-                }
-                @Override
-                public void onFailure(Call<ListaPeliculas> call, Throwable throwable) {
-
-                    Toast.makeText(getBaseContext(), "Error: Con la API", Toast.LENGTH_LONG).show();
-                    finish();
-                }
-            });
-
-        }
 
     }
 
